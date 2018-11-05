@@ -34,7 +34,7 @@ AppRate = (function() {
   LOCAL_STORAGE_COUNTER = 'counter';
   LOCAL_STORAGE_IOS_RATING = 'iosRating';
 
-  FLAG_NATIVE_CODE_SUPPORTED = /(iPhone|iPod|iPad|Android)/i.test(navigator.userAgent.toLowerCase());
+  FLAG_NATIVE_CODE_SUPPORTED = true;
 
   PREF_STORE_URL_PREFIX_IOS9 = "itms-apps://itunes.apple.com/app/viewContentsUserReviews/id";
   PREF_STORE_URL_POSTFIX_IOS9 = "?action=write-review";
@@ -259,19 +259,13 @@ AppRate = (function() {
     var iOSVersion;
     var iOSStoreUrl;
 
-    if (/(iPhone|iPod|iPad)/i.test(navigator.userAgent.toLowerCase())) {
+    if (window.device && window.device.platform && window.device.platform.toLowerCase() === "ios") {
       if (this.preferences.inAppReview) {
         updateiOSRatingData();
         var showNativePrompt = iOSRating.timesPrompted < 3;
         exec(null, null, 'AppRate', 'launchiOSReview', [this.preferences.storeAppURL.ios, showNativePrompt]);
       } else {
-        iOSVersion = navigator.userAgent.match(/OS\s+([\d\_]+)/i)[0].replace(/_/g, '.').replace('OS ', '').split('.');
-        iOSVersion = parseInt(iOSVersion[0]) + (parseInt(iOSVersion[1]) || 0) / 10;
-        if (iOSVersion < 9) {
-          iOSStoreUrl = PREF_STORE_URL_FORMAT_IOS8 + this.preferences.storeAppURL.ios;
-        } else {
-          iOSStoreUrl = PREF_STORE_URL_PREFIX_IOS9 + this.preferences.storeAppURL.ios + PREF_STORE_URL_POSTFIX_IOS9;
-        }
+        iOSStoreUrl = PREF_STORE_URL_PREFIX_IOS9 + this.preferences.storeAppURL.ios + PREF_STORE_URL_POSTFIX_IOS9;
         cordova.InAppBrowser.open(iOSStoreUrl, '_system', 'location=no');
       }
     } else if (/(Android)/i.test(navigator.userAgent.toLowerCase())) {
